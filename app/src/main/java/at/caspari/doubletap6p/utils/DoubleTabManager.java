@@ -20,16 +20,36 @@
 
 package at.caspari.doubletap6p.utils;
 
+import android.os.AsyncTask;
+
 import java.io.DataOutputStream;
 
-public class DoubleTabManager {
+import at.caspari.doubletap6p.interfaces.AsyncResponse;
 
-    public void enableDTW() throws Exception {
-        runAsRoot(new String[]{"echo 1 > /sys/devices/soc.0/f9924000.i2c/i2c-2/2-0070/input/input0/wake_gesture"});
+public class DoubleTabManager extends AsyncTask<Object, Void, Boolean> {
+
+    private Throwable exception;
+    private AsyncResponse delegate;
+
+    @Override
+    protected Boolean doInBackground(Object... params) { //[0] = AsyncResponse, [1] = enable/disable dtw
+        delegate = (AsyncResponse) params[0];
+        boolean enable = (Boolean)params[1];
+        try {
+            dtw(enable);
+        } catch (Throwable e) {
+            exception = e;
+        }
+        return enable;
     }
 
-    public void disableDTW() throws Exception {
-        runAsRoot(new String[]{"echo 0 > /sys/devices/soc.0/f9924000.i2c/i2c-2/2-0070/input/input0/wake_gesture"});
+    @Override
+    protected void onPostExecute(Boolean enable) {
+        delegate.processFinish(enable, exception);
+    }
+
+    private void dtw(boolean enable) throws Exception {
+        runAsRoot(new String[]{"echo "+(enable ? "1" : "0")+" > /sys/devices/soc.0/f9924000.i2c/i2c-2/2-0070/input/input0/wake_gesture"});
     }
 
     private void runAsRoot(String[] cmds) throws Exception{

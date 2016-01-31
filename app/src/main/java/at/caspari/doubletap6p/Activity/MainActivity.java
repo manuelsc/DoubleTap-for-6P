@@ -31,17 +31,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import at.caspari.doubletap6p.R;
+import at.caspari.doubletap6p.interfaces.AsyncResponse;
 import at.caspari.doubletap6p.utils.DoubleTabManager;
 import at.caspari.doubletap6p.utils.SupportDetector;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, AsyncResponse {
 
     private TextView desc;
     private SupportDetector sup;
     private Button justDoIt;
     private LinearLayout lay;
     private SharedPreferences prefs;
-    private DoubleTabManager mgr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +53,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         lay = (LinearLayout) findViewById(R.id.main);
         sup = new SupportDetector();
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        mgr = new DoubleTabManager();
 
         init();
     }
@@ -73,23 +72,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         justDoIt.setEnabled(false);
         normalize();
-        try {
-            if(!prefs.getBoolean("enabled", false)) { // Enable
-                mgr.enableDTW();
-                prefs.edit().putBoolean("enabled", true).apply();
-                Toast.makeText(MainActivity.this, "Enabled", Toast.LENGTH_SHORT).show();
-            } else { // Disable
-                mgr.disableDTW();
-                prefs.edit().putBoolean("enabled", false).apply();
-                Toast.makeText(MainActivity.this, "Disabled", Toast.LENGTH_SHORT).show();
-            }
-            revalidateButton();
-        } catch (Exception e) {
-            desc.setText(getResources().getString(R.string.desc_no_root));
-            justDoIt.setText(getResources().getString(R.string.but_failed));
-            justDoIt.setEnabled(true);
-            lay.setBackgroundColor(0xFFcc3737);
-        }
+        new DoubleTabManager().execute(this, !prefs.getBoolean("enabled", false));
+    }
+
+    private void showError(){
+        desc.setText(getResources().getString(R.string.desc_no_root));
+        justDoIt.setText(getResources().getString(R.string.but_failed));
+        justDoIt.setEnabled(true);
+        lay.setBackgroundColor(0xFFcc3737);
     }
 
     private void revalidateButton(){
@@ -109,5 +99,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         justDoIt.setBackgroundColor(getResources().getColor(R.color.colorAccent));
         lay.setBackgroundColor(0xFF175ea2);
         justDoIt.setEnabled(true);
+    }
+
+    @Override
+    public void processFinish(boolean enable, Throwable exception) {
+        if(exception != null) { showError(); return; }
+        prefs.edit().putBoolean("enabled", enable).apply();
+        Toast.makeText(MainActivity.this, enable ? "Enabled" : "Disabled", Toast.LENGTH_SHORT).show();
+        revalidateButton();
     }
 }

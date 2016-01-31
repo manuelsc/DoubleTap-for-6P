@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">DoubleTap 6P</string>
-    <string name="desc_normal">Enable/Disable the Nexus 6P DoubleTap to Wake feature. You need root to perform this action.</string>
+    <string name="desc_normal">Enable/Disable the Nexus 6P DoubleTap to Wake feature. Once enabled it will automatically apply this setting on every reboot. You need root to perform this action.</string>
     <string name="desc_not_6p">We are sorry, this App only works on a Nexus 6P.</string>
     <string name="desc_no_root">Couldn\'t activate DoubleTap to Wake. Please make sure your device is rooted and you granted this app the necessary permissions.</string>
     <string name="but">Enable</string>

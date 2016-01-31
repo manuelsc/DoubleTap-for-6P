@@ -29,8 +29,8 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:textColor="@android:color/white"
-        android:paddingLeft="64dp"
-        android:paddingRight="64dp"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp"
         android:textSize="16sp"
         android:text="@string/desc_normal"
         android:id="@+id/description" />

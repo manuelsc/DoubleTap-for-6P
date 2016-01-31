@@ -25,18 +25,29 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
+import at.caspari.doubletap6p.interfaces.AsyncResponse;
 import at.caspari.doubletap6p.utils.DoubleTabManager;
 
-public class BootReceiver extends BroadcastReceiver {
+public class BootReceiver extends BroadcastReceiver implements AsyncResponse{
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		if (sharedPrefs.getBoolean("enabled", false)) {
-             try {
-                 new DoubleTabManager().enableDTW();
-             } catch (Exception e) {}
+            for(int i=0; i < 2; i++)
+                new DoubleTabManager().execute(this, true);
         }
 	}
+
+    @Override
+    public void processFinish(boolean enable, Throwable exception) {
+        if(exception != null){
+            Log.d("at.caspari.doubletap6p", "dt2w failed");
+            exception.printStackTrace();
+        } else {
+            Log.d("at.caspari.doubletap6p", "dt2w activated");
+        }
+    }
 }
